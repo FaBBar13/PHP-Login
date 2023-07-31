@@ -6,6 +6,8 @@ ob_start();
 include __DIR__ . '/header.php';
 
 //echo "ICI ET LA !!" 
+
+
 ?>
 
 <div>
@@ -26,10 +28,10 @@ include __DIR__ . '/header.php';
     <?php
 
     if (!empty($_POST['action'])) {
-        if (empty($_POST('username'))) {
+        if (empty($_POST['username'])) {
             echo "<p style='color:red'>Saisir le Nom Utilisateur</p>";
 
-        } else if (empty($_POST('password'))) {
+        } else if (empty($_POST['password'])) {
             echo "<p style='color:red'>Saisir le Mot de Passe</p>";
 
         } else {
@@ -38,8 +40,28 @@ include __DIR__ . '/header.php';
         ;
     }
     ;
+    $res = '';
+    function ControleExistence($par_user, $par_mdp)
+    {
+
+        $req_ctrl = getConnection()->prepare("SELECT id_user,id_email,id_nom,id_prenom FROM users WHERE id_nom=:id_nom ORDER BY 1");
+        $req_ctrl->bindValue(':id_nom', $_POST['username']);
+        $req_ctrl->execute();
+
+        $res = $req_ctrl->fetchAll(PDO::FETCH_ASSOC);
+        var_dump($res);
+    }
+    ;
+
 
     ?>
 
 
 </div>
+
+
+<?php
+
+ob_flush();
+
+include __DIR__ . '/footer.php'; ?>
