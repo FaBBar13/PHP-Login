@@ -21,7 +21,7 @@ include __DIR__ . '/header.php';
             <h1>Connexion</h1>
 
             <label><b>Adresse e-mail</b></label>
-            <input type="text" class="form-control" placeholder="Saisir adresse e-Mail" id="id_email" name="id_email">
+            <input type="email" class="form-control" placeholder="Saisir adresse e-Mail" id="id_email" name="id_email">
 
             <label><b>Mot de passe</b></label>
             <input type="password" class="form-control" placeholder="Saisir le mot de passe" id="password"
@@ -32,7 +32,7 @@ include __DIR__ . '/header.php';
         </div>
     </form>
     <?php
-    var_dump(realpath(__FILE__));
+    // var_dump(realpath(__FILE__));
     include 'C:\xampp\htdocs\09-Login-PHP\src\bdd.php';
 
 
@@ -46,7 +46,7 @@ include __DIR__ . '/header.php';
         } else {
             //echo "controler existence";
             //print_r($_POST['id_email'] . " => " . $_POST['password'] . "<br>");
-            ControleExistence($_POST['id_email'], $_POST['password']);
+            ControleExistence(htmlspecialchars(strip_tags($_POST['id_email'])), htmlspecialchars(strip_tags($_POST['password'])));
         }
 
     }
@@ -56,15 +56,16 @@ include __DIR__ . '/header.php';
     function ControleExistence($par_user, $par_mdp)
     {
 
-        $req_ctrl = getConnection()->prepare("SELECT id_user,id_email,id_pwd,id_nom,id_prenom FROM users WHERE id_email=:id_email");
+        $req_ctrl = getConnection()->prepare("SELECT id_user,id_email,id_pwd,id_nom,id_prenom FROM users WHERE UPPER(id_email)=UPPER(:id_email)");
         $req_ctrl->bindValue(':id_email', $_POST['id_email']);
         $req_ctrl->execute();
 
         if ($entries = $req_ctrl->fetch(PDO::FETCH_ASSOC)) {
-            var_dump($entries);
-
+            //var_dump($entries);
+    
             if ($entries['id_pwd'] <> $_POST['password']) {
                 echo "Mot de passe erroné";
+                exit;
             } else {
                 //echo "page connexion réussie";
                 $_SESSION['_user'] = $entries['id_user'];
@@ -72,7 +73,7 @@ include __DIR__ . '/header.php';
                 $_SESSION['_pwd'] = $entries['id_pwd'];
                 $_SESSION['_nom'] = $entries['id_nom'];
                 $_SESSION['_prenom'] = $entries['id_prenom'];
-                echo ($_SESSION['_user'] . ' ' . $_SESSION['_email'] . ' ');
+                //echo ($_SESSION['_user'] . ' ' . $_SESSION['_email'] . ' ');
                 header("Location: /src/vues/connexion.php");
                 exit;
             }
@@ -80,7 +81,8 @@ include __DIR__ . '/header.php';
 
         } else { ?>
             <form method='POST' action='/src/vues/creation.php'>
-                <input type='submit' id='creation' name='new_user' value='Créer Utilisateur'>
+                <h3 style='color : red'>Adresse Email Inconnue !</h3>
+                <input type='submit' id='creation' name='new_user' value='Créer ?'>
             </form>
         <?php }
     }
